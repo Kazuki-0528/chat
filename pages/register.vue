@@ -18,7 +18,7 @@
               person
             </i>
           </template>
-          
+
           <input
             ref="image"
             type="file"
@@ -35,6 +35,7 @@
       </label>
       <div class="h-20 mb-6">
         <input
+          v-model="form.name.val"
           type="text"
           class="block w-full py-3 px-4 appearance-none bg-gray-200 text-darkGray border rounded leading-tight focus:outline-none focus:bg-white"
         />
@@ -57,8 +58,15 @@ export default {
   data() {
     return {
       form: {
+        name: {
+          label: '名前',
+          val: null,
+          errorMessage: null
+        },
         imageUrl: {
-          val: null
+          label: 'アイコン画像',
+          val: null,
+          errorMessage: null
         }
       }
     }
@@ -71,7 +79,7 @@ export default {
       const files = e.target.files
       if (files.length === 0) return
 
-      const render = new FileReader()
+      const reader = new FileReader()
       reader.readAsDataURL(files[0])
 
       reader.addEventListener('load', () => {
@@ -93,7 +101,34 @@ export default {
 
       const snapShot = await imageRef.put(localImageFile)
       this.form.imageUrl.val = await snapShot.ref.getDownloadURL()
+    },
+    validateName() {
+    const { name } = this.form
+    const maxLength = 8
+
+    if (!name.val) {
+      name.errorMessage = `${name.label}は必須入力項目です`
+      return
+    }
+
+    if (name.val.length > maxLength) {
+      name.errorMessage = `${name.label}は${maxLength}文字以内です。`
+      return
+    }
+
+    name.errorMessage = null
+  },
+
+  validateImageUrl() {
+    const { imageUrl } = this.form
+
+    if (!imageUrl.val) {
+      imageUrl.errorMessage = `${imageUrl.label}は必須入力項目です`
+      return
+    }
+
+    imageUrl.errorMessage = null
+  },
     }
   }
-}
 </script>
